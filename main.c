@@ -13,6 +13,8 @@ void mostra_matriz(int **matriz);
 
 void ler_arquivo(char *nome_arquivo, int **matriz);
 
+void escrever_graus_em_arquivo(char *nome_arquivo, int **matriz, int tamanho);
+
 
 int main() {
     int maior_grau;
@@ -23,10 +25,13 @@ int main() {
     }
 
     ler_arquivo("dados_matriz.txt", matriz);
-    mostra_matriz(matriz);
+    //mostra_matriz(matriz);
 
     maior_grau = grau_do_maior_vertice(matriz);
     printf("\nO vertice com maior grau eh: %i", maior_grau);
+
+    escrever_graus_em_arquivo("dados_grafos_graus.txt", matriz, tamanho_matriz);
+
 }
 
 void ler_arquivo(char *nome_arquivo, int **matriz) {
@@ -81,5 +86,32 @@ int grau_do_maior_vertice(int **matriz) {
     }
 
     return vertice_com_maior_grau;
+}
+
+void escrever_graus_em_arquivo(char *nome_arquivo, int **matriz, int tamanho) {
+    FILE *arch;
+    arch = fopen(nome_arquivo, "w");
+    if (arch == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.");
+        exit(1);
+    }
+
+    int *graus = (int *)malloc(tamanho * sizeof(int));
+    for (int i = 0; i < tamanho; i++) {
+        int grau = 0;
+        for (int j = 0; j < tamanho; j++) {
+            if (matriz[i][j] == 1) {
+                grau++;
+            }
+        }
+        graus[i] = grau;
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        fprintf(arch, "%d %d\n", i, graus[i]);
+    }
+
+    fclose(arch);
+    free(graus);
 }
 
