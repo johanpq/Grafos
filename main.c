@@ -19,6 +19,8 @@ void escrever_graus_em_arquivo(char *nome_arquivo, int **matriz, int tamanho);
 
 void vertices_isolados(int **matriz, int tamanho);
 
+void vertice_sumidouro(int **matriz, int tamanho);
+
 int main() {
     int **matriz = (int **)malloc(tamanho_matriz * sizeof(int *));
 
@@ -40,6 +42,7 @@ int main() {
         switch(choice) {
             case 1:
                 printf("\nO vertice com maior grau eh: %i\n", maior_grau);
+
                 break;
 
             case 2:
@@ -51,12 +54,15 @@ int main() {
                 vertices_isolados(matriz, tamanho_matriz);
                 break;
             case 4:
+                vertice_sumidouro(matriz, tamanho_matriz);
+                break;
+            case 5:
                 printf("Saindo...");
                 break;
             default: 
                 printf("Erro!\n");
         }
-    } while(choice != 4);
+    } while(choice != 5);
 
     return 0;
 
@@ -67,7 +73,8 @@ void Menu() {
     printf("     1. Qual(is) o vertice(s) com maior(es) grau?                    \n");
     printf("     2. Numero do vertices seguido pelo seu respectivo grau          \n");
     printf("     3. Se existir, quais sao os vertices isolados?                  \n");
-    printf("     4. Sair                                                         \n");
+    printf("     4. Existe um vertice sumidouro?                                 \n");
+    printf("     5. Sair                                                         \n");
     printf("=====================================================================\n");
 } 
 
@@ -167,4 +174,27 @@ void vertices_isolados(int **matriz, int tamanho) {
     printf("\n");
 }
 
-
+void vertice_sumidouro(int **matriz, int tamanho) {
+    int vertice_sumidouro = -1; // Inicializa como -1 para indicar que não foi encontrado
+    for (int i = 0; i < tamanho; i++) {
+        int soma_linha = 0;
+        for (int j = 0; j < tamanho; j++) {
+            soma_linha += matriz[i][j];
+        }
+        if (soma_linha == 0) { // Se a soma da linha é zero
+            int soma_coluna = 0;
+            for (int j = 0; j < tamanho; j++) {
+                soma_coluna += matriz[j][i];
+            }
+            if (soma_coluna == tamanho - 1) { // Se a soma da coluna é tamanho - 1
+                vertice_sumidouro = i;
+                break; // Encontrou um vértice sumidouro, então podemos parar a busca
+            }
+        }
+    }
+    if (vertice_sumidouro != -1) {
+        printf("O vertice sumidouro eh: %d\n", vertice_sumidouro);
+    } else {
+        printf("Nao ha vertice sumidouro no grafo.\n");
+    }
+}
