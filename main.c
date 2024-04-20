@@ -21,8 +21,14 @@ void vertices_isolados(int **matriz, int tamanho);
 
 void vertice_sumidouro(int **matriz, int tamanho);
 
+void calcular_graus_emissao_recepcao(int **matriz, int tamanho, int *graus_emissao, int *graus_recepcao);
+
+void escrever_graus_de_emissao_em_arquivo(char *nome_arquivo_emissao, char *nome_arquivo_recepcao, int *graus_emissao, int *graus_recepcao, int tamanho);
+
 int main() {
     int **matriz = (int **)malloc(tamanho_matriz * sizeof(int *));
+    int *graus_emissao = (int *)malloc(tamanho_matriz * sizeof(int));
+    int *graus_recepcao = (int *)malloc(tamanho_matriz * sizeof(int));
 
     for (int i = 0; i < tamanho_matriz; i++) {
         matriz[i] = (int *)malloc(tamanho_matriz * sizeof(int));
@@ -57,12 +63,20 @@ int main() {
                 vertice_sumidouro(matriz, tamanho_matriz);
                 break;
             case 5:
+                printf("Arquivos criados!\n");
+                calcular_graus_emissao_recepcao(matriz, tamanho_matriz, graus_emissao, graus_recepcao);
+                escrever_graus_de_emissao_em_arquivo("dados_grafos_emissao.txt", "dados_grafos_recepcao.txt", graus_emissao, graus_recepcao, tamanho_matriz);
+
+                free(graus_emissao);
+                free(graus_recepcao);
+                break;
+            case 6:
                 printf("Saindo...");
                 break;
             default: 
                 printf("Erro!\n");
         }
-    } while(choice != 5);
+    } while(choice != 6);
 
     return 0;
 
@@ -74,7 +88,8 @@ void Menu() {
     printf("     2. Numero do vertices seguido pelo seu respectivo grau          \n");
     printf("     3. Se existir, quais sao os vertices isolados?                  \n");
     printf("     4. Existe um vertice sumidouro?                                 \n");
-    printf("     5. Sair                                                         \n");
+    printf("     5. Determine o grau de Emissao e Recepcao de cada vertice       \n");
+    printf("     6. Sair                                                         \n");
     printf("=====================================================================\n");
 } 
 
@@ -197,4 +212,38 @@ void vertice_sumidouro(int **matriz, int tamanho) {
     } else {
         printf("Nao ha vertice sumidouro no grafo.\n");
     }
+}
+
+void calcular_graus_emissao_recepcao(int **matriz, int tamanho, int *graus_emissao, int *graus_recepcao) {
+    for (int i = 0; i < tamanho; i++) {
+        int grau_emissao = 0;
+        int grau_recepcao = 0;
+        for (int j = 0; j < tamanho; j++) {
+            if (matriz[i][j] == 1) { // Se há uma aresta saindo do vértice i
+                grau_emissao++;
+            }
+            if (matriz[j][i] == 1) { // Se há uma aresta chegando ao vértice i
+                grau_recepcao++;
+            }
+        }
+        graus_emissao[i] = grau_emissao;
+        graus_recepcao[i] = grau_recepcao;
+    }
+}
+
+void escrever_graus_de_emissao_em_arquivo(char *nome_arquivo_emissao, char *nome_arquivo_recepcao, int *graus_emissao, int *graus_recepcao, int tamanho) {
+    FILE *arch_emissao = fopen(nome_arquivo_emissao, "w");
+    FILE *arch_recepcao = fopen(nome_arquivo_recepcao, "w");
+    if (arch_emissao == NULL || arch_recepcao == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.");
+        exit(1);
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        fprintf(arch_emissao, "%d %d\n", i, graus_emissao[i]);
+        fprintf(arch_recepcao, "%d %d\n", i, graus_recepcao[i]);
+    }
+
+    fclose(arch_emissao);
+    fclose(arch_recepcao);
 }
