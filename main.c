@@ -5,6 +5,8 @@
 // trocar pela quantidade de vertices da sua matriz/grafo
 #define tamanho_matriz 3151
 
+void Menu();
+
 int min_e_max(int n, int n1);
 
 int grau_do_maior_vertice(int **matriz);
@@ -15,24 +17,59 @@ void ler_arquivo(char *nome_arquivo, int **matriz);
 
 void escrever_graus_em_arquivo(char *nome_arquivo, int **matriz, int tamanho);
 
+void vertices_isolados(int **matriz, int tamanho);
 
 int main() {
-    int maior_grau;
     int **matriz = (int **)malloc(tamanho_matriz * sizeof(int *));
-    int i;
-    for (i = 0; i < tamanho_matriz; i++) {
+
+    for (int i = 0; i < tamanho_matriz; i++) {
         matriz[i] = (int *)malloc(tamanho_matriz * sizeof(int));
     }
 
     ler_arquivo("dados_matriz.txt", matriz);
     //mostra_matriz(matriz);
 
+    int maior_grau; 
     maior_grau = grau_do_maior_vertice(matriz);
-    printf("\nO vertice com maior grau eh: %i", maior_grau);
 
-    escrever_graus_em_arquivo("dados_grafos_graus.txt", matriz, tamanho_matriz);
+    int choice = 0;
+    
+    do {
+        Menu();
+        scanf("%d", &choice);
+        switch(choice) {
+            case 1:
+                printf("\nO vertice com maior grau eh: %i\n", maior_grau);
+                break;
+
+            case 2:
+                escrever_graus_em_arquivo("dados_grafos_graus.txt", matriz, tamanho_matriz);
+                printf("Criado arquivo!\n");
+                break;
+
+            case 3:
+                vertices_isolados(matriz, tamanho_matriz);
+                break;
+            case 4:
+                printf("Saindo...");
+                break;
+            default: 
+                printf("Erro!\n");
+        }
+    } while(choice != 4);
+
+    return 0;
 
 }
+
+void Menu() {
+    printf("=====================================================================\n");
+    printf("     1. Qual(is) o vertice(s) com maior(es) grau?                    \n");
+    printf("     2. Numero do vertices seguido pelo seu respectivo grau          \n");
+    printf("     3. Se existir, quais sao os vertices isolados?                  \n");
+    printf("     4. Sair                                                         \n");
+    printf("=====================================================================\n");
+} 
 
 void ler_arquivo(char *nome_arquivo, int **matriz) {
     FILE *arch;
@@ -54,6 +91,7 @@ void ler_arquivo(char *nome_arquivo, int **matriz) {
             break;
         }
     }
+    
     fclose(arch);
 }
 
@@ -114,4 +152,19 @@ void escrever_graus_em_arquivo(char *nome_arquivo, int **matriz, int tamanho) {
     fclose(arch);
     free(graus);
 }
+
+void vertices_isolados(int **matriz, int tamanho) {
+    printf("Vertices isolados:\n");
+    for (int i = 0; i < tamanho; i++) {
+        int grau = 0;
+        for (int j = 0; j < tamanho; j++) {
+            grau += matriz[i][j];
+        }
+        if (grau == 0) {
+            printf("%d\n", i);
+        }
+    }
+    printf("\n");
+}
+
 
