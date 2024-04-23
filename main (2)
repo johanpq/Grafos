@@ -34,8 +34,13 @@ void escrever_matriz_em_arquivo(char *nome_arquivo, int **matriz, int tamanho);
 
 void inverter_arestas(int **matriz, int tamanho);
 
+void calcular_complementar(int **matriz, int **matriz_complementar, int tamanho);
+
+int estao_conectados(int **matriz, int tamanho);
+
 int main() {
     int **matriz = (int **)malloc(tamanho_matriz * sizeof(int *));
+    int **matriz_complementar = alocar_matriz_complementar(tamanho_matriz);
     int *graus_emissao = (int *)malloc(tamanho_matriz * sizeof(int));
     int *graus_recepcao = (int *)malloc(tamanho_matriz * sizeof(int));
 
@@ -98,18 +103,35 @@ int main() {
                 break;
 
             case 8:
+                printf("Calculando o grafo complementar...\n");
+                calcular_complementar(matriz, matriz_complementar, tamanho_matriz);
+                escrever_matriz_em_arquivo("dados_grafo_complementar.txt", matriz_complementar, tamanho_matriz);
+                printf("Grafo complementar salvo em 'dados_grafo_complementar.txt'.\n");
+                break;
+
+            case 9:
+                if (estao_conectados(matriz, tamanho_matriz)) {
+                    printf("O primeiro e o ultimo vertice estao conectados no grafo.\n");
+                } else {
+                    printf("O primeiro e o ultimo vertice nao estao conectados no grafo.\n");
+                }
+                break;
+
+            case 10:
                 printf("Saindo...\n");
                 break;
 
             default: 
                 printf("Erro! Opcao invalida.\n");
         }
-    } while(choice != 8);
+    } while(choice != 10);
 
     for (int i = 0; i < tamanho_matriz; i++) {
         free(matriz[i]);
+        free(matriz_complementar[i]);
     }
     free(matriz);
+    free(matriz_complementar);
 
     return 0;
 }
@@ -123,7 +145,9 @@ void Menu() {
     printf("     5. Existe um vertice fonte?                                     \n");
     printf("     6. Determine o grau de Emissao e Recepcao de cada vertice       \n");
     printf("     7. Inverter a direcao das arestas                               \n");
-    printf("     8. Sair                                                         \n");
+    printf("     8. Calcular o grafo complementar                                \n");
+    printf("     9. Verificar se o primeiro e o ultimo vertice estao conectados   \n");
+    printf("    10. Sair                                                         \n");
     printf("=====================================================================\n");
 } 
 
@@ -137,6 +161,7 @@ void ler_arquivo(char *nome_arquivo, int **matriz) {
         token = strtok(linha, " ");
         j = 0;
         while (j < tamanho_matriz) {
+
             matriz[i][j] = atoi(token);
             token = strtok(NULL, " ");
             j++;
@@ -155,8 +180,10 @@ void mostra_matriz(int **matriz) {
 
     for (i = 0; i < tamanho_matriz; i++) {
         for (j = 0; j < tamanho_matriz; j++) {
+
             printf(" %i ", matriz[i][j]);
         }
+
         printf("\n");
     }
 }
@@ -331,9 +358,21 @@ void inverter_arestas(int **matriz, int tamanho) {
     for (int i = 0; i < tamanho; i++) {
         for (int j = 0; j < tamanho; j++) {
             if (matriz[i][j] == 1) {
-                matriz[j][i] = 1;
                 matriz[i][j] = 0;
+                matriz[j][i] = 1;
             }
         }
     }
+}
+
+void calcular_complementar(int **matriz, int **matriz_complementar, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            matriz_complementar[i][j] = (matriz[i][j] == 0 && i != j) ? 1 : 0;
+        }
+    }
+}
+
+int estao_conectados(int **matriz, int tamanho) {
+    return matriz[0][tamanho - 1] == 1;
 }
