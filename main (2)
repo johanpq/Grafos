@@ -32,6 +32,8 @@ void calcular_grafo_complementar(int **matriz_original, int **matriz_complementa
 
 void escrever_matriz_em_arquivo(char *nome_arquivo, int **matriz, int tamanho);
 
+void inverter_arestas(int **matriz, int tamanho);
+
 int main() {
     int **matriz = (int **)malloc(tamanho_matriz * sizeof(int *));
     int *graus_emissao = (int *)malloc(tamanho_matriz * sizeof(int));
@@ -89,13 +91,20 @@ int main() {
                 break;
 
             case 7:
+                printf("Invertendo a direcao das arestas...\n");
+                inverter_arestas(matriz, tamanho_matriz);
+                escrever_matriz_em_arquivo("dados_grafos_invertido.txt", matriz, tamanho_matriz);
+                printf("Grafo com direcao invertida salvo em 'dados_grafos_invertido.txt'.\n");
+                break;
+
+            case 8:
                 printf("Saindo...\n");
                 break;
 
             default: 
                 printf("Erro! Opcao invalida.\n");
         }
-    } while(choice != 7);
+    } while(choice != 8);
 
     for (int i = 0; i < tamanho_matriz; i++) {
         free(matriz[i]);
@@ -113,7 +122,8 @@ void Menu() {
     printf("     4. Existe um vertice sumidouro?                                 \n");
     printf("     5. Existe um vertice fonte?                                     \n");
     printf("     6. Determine o grau de Emissao e Recepcao de cada vertice       \n");
-    printf("     7. Sair                                                         \n");
+    printf("     7. Inverter a direcao das arestas                               \n");
+    printf("     8. Sair                                                         \n");
     printf("=====================================================================\n");
 } 
 
@@ -152,12 +162,9 @@ void mostra_matriz(int **matriz) {
 }
 
 int grau_do_maior_vertice(int **matriz) {
-    int maior_grau = 0;
-    int aux = 0;
-    int vertice_com_maior_grau = 0;
-
-    for (int i = 0; i < tamanho_matriz; i++) {
-        for (int j = 0; j < tamanho_matriz; j++) {
+    int i, j, maior_grau = 0, aux = 0, vertice_com_maior_grau = 0;
+    for (i = 0; i < tamanho_matriz; i++) {
+        for (j = 0; j < tamanho_matriz; j++) {
             if (matriz[i][j] == 1) {
                 aux++;
             }
@@ -168,7 +175,6 @@ int grau_do_maior_vertice(int **matriz) {
         }
         aux = 0;
     }
-
     return vertice_com_maior_grau;
 }
 
@@ -215,7 +221,6 @@ void vertices_isolados(int **matriz, int tamanho) {
 
 void vertice_sumidouro(int **matriz, int tamanho) {
     int vertice_sumidouro = -1;
-
     for (int i = 0; i < tamanho; i++) {
         int soma_linha = 0;
         for (int j = 0; j < tamanho; j++) {
@@ -287,4 +292,48 @@ void escrever_graus_de_emissao_em_arquivo(char *nome_arquivo_emissao, char *nome
 
     fclose(arch_emissao);
     fclose(arch_recepcao);
+}
+
+int **alocar_matriz_complementar(int tamanho) {
+    int **matriz = (int **)malloc(tamanho * sizeof(int *));
+    for (int i = 0; i < tamanho; i++) {
+        matriz[i] = (int *)malloc(tamanho * sizeof(int));
+    }
+    return matriz;
+}
+
+void calcular_grafo_complementar(int **matriz_original, int **matriz_complementar, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            matriz_complementar[i][j] = (matriz_original[i][j] == 0) ? 1 : 0;
+        }
+    }
+}
+
+void escrever_matriz_em_arquivo(char *nome_arquivo, int **matriz, int tamanho) {
+    FILE *arquivo = fopen(nome_arquivo, "w");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            fprintf(arquivo, "%d ", matriz[i][j]);
+        }
+        fprintf(arquivo, "\n");
+    }
+
+    fclose(arquivo);
+}
+
+void inverter_arestas(int **matriz, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            if (matriz[i][j] == 1) {
+                matriz[j][i] = 1;
+                matriz[i][j] = 0;
+            }
+        }
+    }
 }
