@@ -27,6 +27,12 @@ void calcular_graus_emissao_recepcao(int **matriz, int tamanho, int *graus_emiss
 
 void escrever_graus_de_emissao_em_arquivo(char *nome_arquivo_emissao, char *nome_arquivo_recepcao, int *graus_emissao, int *graus_recepcao, int tamanho);
 
+int **alocar_matriz_complementar(int tamanho);
+
+void calcular_grafo_complementar(int **matriz_original, int **matriz_complementar, int tamanho);
+
+void escrever_matriz_em_arquivo(char *nome_arquivo, int **matriz, int tamanho);
+
 int main() {
     int **matriz = (int **)malloc(tamanho_matriz * sizeof(int *));
     int *graus_emissao = (int *)malloc(tamanho_matriz * sizeof(int));
@@ -275,4 +281,37 @@ void escrever_graus_de_emissao_em_arquivo(char *nome_arquivo_emissao, char *nome
 
     fclose(arch_emissao);
     fclose(arch_recepcao);
+}
+
+int **alocar_matriz_complementar(int tamanho) {
+    int **matriz = (int **)malloc(tamanho * sizeof(int *));
+    for (int i = 0; i < tamanho; i++) {
+        matriz[i] = (int *)malloc(tamanho * sizeof(int));
+    }
+    return matriz;
+}
+
+void calcular_grafo_complementar(int **matriz_original, int **matriz_complementar, int tamanho) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            matriz_complementar[i][j] = (matriz_original[i][j] == 0) ? 1 : 0;
+        }
+    }
+}
+
+void escrever_matriz_em_arquivo(char *nome_arquivo, int **matriz, int tamanho) {
+    FILE *arquivo = fopen(nome_arquivo, "w");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            fprintf(arquivo, "%d ", matriz[i][j]);
+        }
+        fprintf(arquivo, "\n");
+    }
+
+    fclose(arquivo);
 }
